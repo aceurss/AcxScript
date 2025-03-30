@@ -1,152 +1,99 @@
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-local Window = Rayfield:CreateWindow({
-    Name = "Azx Hub",
-    LoadingTitle = "Loading...",
-    LoadingSubtitle = "by AcxScripter",
-    ConfigurationSaving = { Enabled = false },
-    KeySystem = false
-})
+-- Roblox Auto Farm GUI Script
+-- Azz Hub by AcxScripter (Modified for Auto Farm, Auto Sell, Auto Collect, Auto Buy, and Teleports)
 
--- Main Tabs
-local MainTab = Window:CreateTab("Main", 4483362458)
-local AutoFarmTab = Window:CreateTab("Auto Farm", 4483362458)
-local TeleportTab = Window:CreateTab("Teleport", 4483362458)
-local SettingsTab = Window:CreateTab("Settings", 4483362458)
+local Library = loadstring(game:HttpGet("https://pastebin.com/raw/Edjt8egX"))()
+local Window = Library.CreateLib("Azz Hub", "DarkTheme")
 
--- Auto Farm Features
-AutoFarmTab:CreateToggle({
-    Name = "Auto Swing",
-    CurrentValue = false,
-    Flag = "AutoSwing",
-    Callback = function(Value)
-        getgenv().autoswing = Value
-        while getgenv().autoswing do
-            local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-            if tool then
-                tool:Activate()
-            end
-            task.wait(0.1)
+-- Main Tab
+local Main = Window:NewTab("Main")
+local MainSection = Main:NewSection("Automation")
+
+-- Auto Farm Toggle
+MainSection:NewToggle("Auto Farm", "Auto Attacks and Gains Ninjitsu", function(state)
+    getgenv().AutoFarm = state
+    while getgenv().AutoFarm do
+        game:GetService("ReplicatedStorage").Events.Swing:FireServer()
+        wait(0.1)
+    end
+end)
+
+-- Auto Sell Toggle
+MainSection:NewToggle("Auto Sell", "Automatically Sells Ninjitsu", function(state)
+    getgenv().AutoSell = state
+    while getgenv().AutoSell do
+        game:GetService("ReplicatedStorage").Events.Sell:FireServer()
+        wait(1)
+    end
+end)
+
+-- Auto Full Sell Toggle
+MainSection:NewToggle("Auto Full Sell", "Sells Only When Belt is Full", function(state)
+    getgenv().AutoFullSell = state
+    while getgenv().AutoFullSell do
+        local player = game.Players.LocalPlayer
+        if player.Data.Ninjitsu.Value >= player.Data.Belt.Value then
+            game:GetService("ReplicatedStorage").Events.Sell:FireServer()
+        end
+        wait(1)
+    end
+end)
+
+-- Auto Collect Coins
+MainSection:NewToggle("Auto Collect Coins", "Automatically Collects Coins", function(state)
+    getgenv().AutoCollectCoins = state
+    while getgenv().AutoCollectCoins do
+        for _, coin in pairs(game:GetService("Workspace").Coins:GetChildren()) do
+            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, coin, 0)
+        end
+        wait(0.5)
+    end
+end)
+
+-- Auto Collect Chi
+MainSection:NewToggle("Auto Collect Chi", "Automatically Collects Chi", function(state)
+    getgenv().AutoCollectChi = state
+    while getgenv().AutoCollectChi do
+        for _, chi in pairs(game:GetService("Workspace").Chi:GetChildren()) do
+            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chi, 0)
+        end
+        wait(0.5)
+    end
+end)
+
+-- Auto Buy (Swords, Belts, Ranks, Skills)
+MainSection:NewToggle("Auto Buy Upgrades", "Buys Swords, Belts, Ranks, and Skills when money is enough", function(state)
+    getgenv().AutoBuy = state
+    while getgenv().AutoBuy do
+        game:GetService("ReplicatedStorage").Events.BuyAll:FireServer("Swords")
+        game:GetService("ReplicatedStorage").Events.BuyAll:FireServer("Belts")
+        game:GetService("ReplicatedStorage").Events.BuyAll:FireServer("Skills")
+        game:GetService("ReplicatedStorage").Events.RankUp:FireServer()
+        wait(5)
+    end
+end)
+
+-- Teleports Tab
+local Teleports = Window:NewTab("Teleports")
+local TeleportsSection = Teleports:NewSection("Islands")
+
+-- Auto Unlock All Islands
+TeleportsSection:NewButton("Unlock All Islands", "Unlocks all islands instantly", function()
+    for _, island in pairs(game:GetService("Workspace").Islands:GetChildren()) do
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.CFrame
+        wait(0.5)
+    end
+end)
+
+-- Teleport to Island Dropdown
+local islands = {}
+for _, island in pairs(game:GetService("Workspace").Islands:GetChildren()) do
+    table.insert(islands, island.Name)
+end
+
+TeleportsSection:NewDropdown("Teleport to Island", "Select an island to teleport", islands, function(selected)
+    for _, island in pairs(game:GetService("Workspace").Islands:GetChildren()) do
+        if island.Name == selected then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.CFrame
         end
     end
-})
-
-AutoFarmTab:CreateToggle({
-    Name = "Auto Sell",
-    CurrentValue = false,
-    Flag = "AutoSell",
-    Callback = function(Value)
-        getgenv().autosell = Value
-        while getgenv().autosell do
-            local sellArea = game.Workspace:FindFirstChild("SellArea")
-            if sellArea then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = sellArea.CFrame
-                wait(0.1)
-            end
-            task.wait(1)
-        end
-    end
-})
-
-AutoFarmTab:CreateToggle({
-    Name = "Auto Buy Belts",
-    CurrentValue = false,
-    Flag = "AutoBuyBelts",
-    Callback = function(Value)
-        getgenv().autobuybelts = Value
-        while getgenv().autobuybelts do
-            local shop = game:GetService("ReplicatedStorage").Shop.Belts
-            local player = game.Players.LocalPlayer
-            local playerStats = player:FindFirstChild("leaderstats")
-            if playerStats then
-                local coins = playerStats:FindFirstChild("Coins")
-                if coins then
-                    for _, belt in pairs(shop:GetChildren()) do
-                        if belt:FindFirstChild("Price") and belt:FindFirstChild("Buy") then
-                            local price = belt.Price.Value
-                            if coins.Value >= price then
-                                belt.Buy:FireServer()
-                            end
-                        end
-                    end
-                end
-            end
-            task.wait(3)
-        end
-    end
-})
-
-AutoFarmTab:CreateToggle({
-    Name = "Auto Buy Ranks",
-    CurrentValue = false,
-    Flag = "AutoBuyRanks",
-    Callback = function(Value)
-        getgenv().autobuyranks = Value
-        while getgenv().autobuyranks do
-            local shop = game:GetService("ReplicatedStorage").Shop.Ranks
-            for _, rank in pairs(shop:GetChildren()) do
-                if rank:FindFirstChild("Buy") then
-                    rank.Buy:FireServer()
-                end
-            end
-            task.wait(3)
-        end
-    end
-})
-
-AutoFarmTab:CreateToggle({
-    Name = "Auto Upgrade Skills",
-    CurrentValue = false,
-    Flag = "AutoUpgradeSkills",
-    Callback = function(Value)
-        getgenv().autoupgradeskills = Value
-        while getgenv().autoupgradeskills do
-            local shop = game:GetService("ReplicatedStorage").Shop.Skills
-            local player = game.Players.LocalPlayer
-            local playerStats = player:FindFirstChild("leaderstats")
-            if playerStats then
-                local coins = playerStats:FindFirstChild("Coins")
-                if coins then
-                    for _, skill in pairs(shop:GetChildren()) do
-                        if skill:FindFirstChild("Price") and skill:FindFirstChild("Buy") then
-                            local price = skill.Price.Value
-                            if coins.Value >= price then
-                                skill.Buy:FireServer()
-                            end
-                        end
-                    end
-                end
-            end
-            task.wait(3)
-        end
-    end
-})
-
-AutoFarmTab:CreateButton({
-    Name = "Unlock All Islands",
-    Callback = function()
-        for _, island in pairs(game:GetService("Workspace").Islands:GetChildren()) do
-            if island:IsA("Model") and island:FindFirstChild("TeleportPart") then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.TeleportPart.CFrame
-                wait(0.5)
-            end
-        end
-    end
-})
-
-TeleportTab:CreateDropdown({
-    Name = "Teleport to Island",
-    Options = {"Island1", "Island2", "Island3", "Island4", "Island5", "Island6", "Island7"},
-    CurrentOption = "Island1",
-    Callback = function(Option)
-        local island = game:GetService("Workspace").Islands:FindFirstChild(Option)
-        if island and island:FindFirstChild("TeleportPart") then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.TeleportPart.CFrame
-        else
-            print("Island not found")
-        end
-    end
-})
-
-SettingsTab:CreateParagraph({Title = "Welcome", Content = "Hey there, AcxScripter! Thank you for using my Script."})
-
-Rayfield:LoadConfiguration()
+end)
