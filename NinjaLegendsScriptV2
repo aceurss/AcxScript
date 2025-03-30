@@ -1,0 +1,130 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+local Window = Rayfield:CreateWindow({
+    Name = "AZX HUB",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by AcxScripter",
+    ConfigurationSaving = { Enabled = false },
+    KeySystem = false
+})
+
+-- Main Tabs
+local MainTab = Window:CreateTab("Main", 4483362458)
+local AutoFarmTab = Window:CreateTab("Auto Farm", 4483362458)
+local TeleportTab = Window:CreateTab("Teleport", 4483362458)
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+
+-- Auto Farm Features
+AutoFarmTab:CreateToggle({
+    Name = "Auto Swing",
+    CurrentValue = false,
+    Flag = "AutoSwing",
+    Callback = function(Value)
+        getgenv().autoswing = Value
+        while getgenv().autoswing do
+            local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+            if tool then
+                tool:Activate()
+            end
+            task.wait(0.1)
+        end
+    end
+})
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Sell",
+    CurrentValue = false,
+    Flag = "AutoSell",
+    Callback = function(Value)
+        getgenv().autosell = Value
+        while getgenv().autosell do
+            local sellLocation = game:GetService("Workspace"):FindFirstChild("SellArea")
+            if sellLocation then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = sellLocation.CFrame
+                wait(0.5)
+            end
+        end
+    end
+})
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Buy Swords",
+    CurrentValue = false,
+    Flag = "AutoBuySwords",
+    Callback = function(Value)
+        getgenv().autobuyswords = Value
+        while getgenv().autobuyswords do
+            game:GetService("ReplicatedStorage").Events.BuyAll:FireServer("Swords")
+            wait(5)
+        end
+    end
+})
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Buy Belts",
+    CurrentValue = false,
+    Flag = "AutoBuyBelts",
+    Callback = function(Value)
+        getgenv().autobuybelts = Value
+        while getgenv().autobuybelts do
+            game:GetService("ReplicatedStorage").Events.BuyAll:FireServer("Belts")
+            wait(5)
+        end
+    end
+})
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Buy Ranks",
+    CurrentValue = false,
+    Flag = "AutoBuyRanks",
+    Callback = function(Value)
+        getgenv().autobuyranks = Value
+        while getgenv().autobuyranks do
+            game:GetService("ReplicatedStorage").Events.RankUp:FireServer()
+            wait(10)
+        end
+    end
+})
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Upgrade Skills",
+    CurrentValue = false,
+    Flag = "AutoUpgradeSkills",
+    Callback = function(Value)
+        getgenv().autoupgradeskills = Value
+        while getgenv().autoupgradeskills do
+            game:GetService("ReplicatedStorage").Events.BuyAll:FireServer("Skills")
+            wait(5)
+        end
+    end
+})
+
+-- Teleport
+TeleportTab:CreateDropdown({
+    Name = "Teleport to Island",
+    Options = {"Island 1", "Island 2", "Island 3", "Island 4", "Island 5", "Island 6", "Island 7"},
+    CurrentOption = "Island 1",
+    Callback = function(Option)
+        for _, island in pairs(game.Workspace:GetChildren()) do
+            if island:IsA("Part") and island.Name == Option then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.CFrame
+            end
+        end
+    end
+})
+
+AutoFarmTab:CreateButton({
+    Name = "Unlock All Islands",
+    Callback = function()
+        for _, island in pairs(game.Workspace:GetChildren()) do
+            if island:IsA("Part") and island.Name:match("Island") then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.CFrame
+                wait(0.5)
+            end
+        end
+    end
+})
+
+-- Settings
+SettingsTab:CreateParagraph({Title = "Welcome", Content = "Hey there, AcxScripter! Thank you for using my Script."})
+
+Rayfield:LoadConfiguration()
