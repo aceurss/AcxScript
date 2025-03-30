@@ -1,0 +1,108 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+local Window = Rayfield:CreateWindow({
+    Name = "Azx Hub",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by ScripterYowai",
+    ConfigurationSaving = { Enabled = false },
+    KeySystem = false
+})
+
+-- Main Tabs
+local MainTab = Window:CreateTab("Main", 4483362458)
+local AutoFarmTab = Window:CreateTab("Auto Farm", 4483362458)
+local TeleportTab = Window:CreateTab("Teleport", 4483362458)
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+
+-- Auto Farm Features
+AutoFarmTab:CreateToggle({
+    Name = "Auto Swing",
+    CurrentValue = false,
+    Flag = "AutoSwing",
+    Callback = function(Value)
+        getgenv().autoswing = Value
+        while getgenv().autoswing do
+            local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+            if tool then
+                tool:Activate()
+            end
+            task.wait(0.1)
+        end
+    end
+})
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Collect Chests",
+    CurrentValue = false,
+    Flag = "AutoChests",
+    Callback = function(Value)
+        getgenv().autochests = Value
+        while getgenv().autochests do
+            for _,v in pairs(game.Workspace:GetChildren()) do
+                if v:IsA("Model") and v.Name:match("Chest") then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.PrimaryPart.CFrame
+                    wait(0.5)
+                end
+            end
+            task.wait(5)
+        end
+    end
+})
+
+AutoFarmTab:CreateButton({
+    Name = "Unlock All Islands",
+    Callback = function()
+        for _, island in pairs(game.Workspace:GetChildren()) do
+            if island:IsA("Part") and island.Name:match("Island") then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.CFrame
+                wait(0.5)
+            end
+        end
+    end
+})
+
+AutoFarmTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Flag = "InfiniteJump",
+    Callback = function(Value)
+        getgenv().infinitejump = Value
+        local Player = game:GetService("Players").LocalPlayer
+        local UIS = game:GetService("UserInputService")
+
+        UIS.JumpRequest:Connect(function()
+            if getgenv().infinitejump then
+                Player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+            end
+        end)
+    end
+})
+
+AutoFarmTab:CreateButton({
+    Name = "Auto Buy Swords",
+    Callback = function()
+        for _,v in pairs(game:GetService("ReplicatedStorage").Shop:GetChildren()) do
+            if v:FindFirstChild("Buy") then
+                v.Buy:FireServer()
+            end
+        end
+    end
+})
+
+-- Teleport
+TeleportTab:CreateDropdown({
+    Name = "Teleport to Island",
+    Options = {"Island 1", "Island 2", "Island 3", "Island 4", "Island 5", "Island 6", "Island 7"},
+    CurrentOption = "Island 1",
+    Callback = function(Option)
+        for _, island in pairs(game.Workspace:GetChildren()) do
+            if island:IsA("Part") and island.Name == Option then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = island.CFrame
+            end
+        end
+    end
+})
+
+-- Settings
+SettingsTab:CreateParagraph({Title = "Welcome", Content = "Hey there, AcxScripter! Thank you for using my Script."})
+
+Rayfield:LoadConfiguration()
